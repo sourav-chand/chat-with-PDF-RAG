@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const { extractAndChunk } = require('./rag/pdfProcessor');
 const { embedBatch } = require('./rag/embedder');
@@ -10,9 +12,19 @@ const { askQuestion } = require('./rag/ragChain');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:4200';
 
+app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+const angularDist = path.join(__dirname, '..', 'frontend', 'dist', 'frontend', 'browser');
+const serveFrontend = fs.existsSync(angularDist);
+if (serveFrontend) {
+  app.use(express.static(angularDist));
+  app.get(/^\/(?!upload|ask|health).*/, (_req, res) => {
+    res.sendFile(path.join(angularDist, 'index.html'));
+  });
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -109,7 +121,14 @@ app.post('/ask', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`\n=== Chat with PDF ===`);
-  console.log(`Server: http://localhost:${PORT}`);
-  console.log(`Qdrant: ${process.env.QDRANT_URL || 'http://localhost:6333'}`);
+  console.log(`Backend API:  http://localhost:${PORT}`);
+  console.log(`CORS origin:  ${CORS_ORIGIN}`);
+  console.log(`Qdrant:       ${process.env.QDRANT_URL || 'http://localhost:6333'}`);
+  if (serveFrontend) {
+    console.log(`Serving UI:   http://localhost:${PORT}  (from ${angularDist})`);
+  } else {
+    console.log(`Serving UI:   (not built) — run "npm run build" from the project root,`);
+    console.log(`               or run the Angular dev server on ${CORS_ORIGIN}`);
+  }
   console.log(`Make sure Qdrant is running: docker run -p 6333:6333 qdrant/qdrant\n`);
 });

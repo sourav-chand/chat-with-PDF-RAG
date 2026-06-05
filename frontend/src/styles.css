@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f1115;
+  --bg-elev: #161a22;
+  --bg-elev-2: #1d2230;
+  --border: #262b38;
+  --text: #e6e8ee;
+  --text-dim: #8b91a3;
+  --accent: #6366f1;
+  --accent-hover: #7c7ff3;
+  --user-bubble: #6366f1;
+  --assistant-bubble: #1d2230;
+  --success: #22c55e;
+  --danger: #ef4444;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+}
